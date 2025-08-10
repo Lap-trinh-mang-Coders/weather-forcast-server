@@ -1,5 +1,4 @@
 package com.example.weather_forecast_server.model;
 
-public class WeatherRawResponse {
-
+public class ClientInfo {
 }

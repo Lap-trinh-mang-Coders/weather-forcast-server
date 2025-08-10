@@ -3,6 +3,7 @@ package com.example.weather_forecast_server.model;
 import lombok.Data;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Data
 public class WeatherData {
@@ -20,4 +21,6 @@ public class WeatherData {
     private String sunrise;
     private String sunset;
     private Integer uvIndex;
+    private Boolean hasAlert = false;
+    private List<String> alerts = null;
 }
