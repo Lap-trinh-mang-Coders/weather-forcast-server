@@ -24,3 +24,4 @@ public class WeatherData {
     private Boolean hasAlert = false;
     private List<String> alerts = null;
 }
+
