@@ -6,40 +6,38 @@ import java.util.List;
 
 @Data
 public class WeatherRawResponse {
-    private int queryCost;
     private double latitude;
     private double longitude;
-    private String resolvedAddress;
-    private String address;
     private String timezone;
-    private double tzoffset;
-    private String description;
-    private List<DayWeather> days;
-    private List<WeatherAlert> alerts;
+    private String address;
+    private List<WeatherDay> days;
 
     @Data
-    public static class DayWeather {
+    public static class WeatherDay {
         private String datetime;
-        private Double tempmax;
-        private Double tempmin;
-        private Double temp;
-        private Double humidity;
-        private Double windspeed;
-        private Double pressure;
+        private double temp;
+        private double tempmax;
+        private double tempmin;
+        private String icon;
+        private double humidity;
+        private double windspeed;
+        private double pressure;
         private String sunrise;
         private String sunset;
-        private Integer uvindex;
-        private String conditions;
-        private String description;
+        private int uvindex;
+        private List<WeatherHour> hours;
     }
 
     @Data
-    public static class WeatherAlert {
-        private String event;
-        private String headline;
-        private String description;
-        private String onset;
-        private String ends;
-        private String severity;
+    public static class WeatherHour {
+        private String datetime;
+        private double temp;
+        private double tempmax;
+        private double tempmin;
+        private String icon;
+        private double humidity;
+        private double windspeed;
+        private double pressure;
+        private int uvindex;
     }
 }
