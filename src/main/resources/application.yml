@@ -4,3 +4,7 @@ server:
 spring:
   application:
       name: weather_forecast_server
+visual:
+  crossing:
+    api:
+      key: JXNAM6RCU3LPJJYCB9SWRBC2L

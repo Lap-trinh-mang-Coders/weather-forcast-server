@@ -1,10 +1,12 @@
 package com.example.weather_forecast_server.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 
 import java.util.List;
 
 @Data
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class WeatherRawResponse {
     private Double latitude;
     private Double longitude;
@@ -15,6 +17,7 @@ public class WeatherRawResponse {
 }
 
 @Data
+@JsonIgnoreProperties(ignoreUnknown = true)
 class WeatherDay {
     private String datetime;
     private Double temp;
@@ -31,6 +34,7 @@ class WeatherDay {
 }
 
 @Data
+@JsonIgnoreProperties(ignoreUnknown = true)
 class WeatherHour {
     private String datetime;
     private Double temp;
