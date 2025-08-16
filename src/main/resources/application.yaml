@@ -1,6 +1,3 @@
-server:
-  port: 2004
 
-spring:
-  application:
-      name: weather_forecast_server
+  visualcrossing.api.key=7XJYKTF4MUP57J6GETNEPDD5E
+  visualcrossing.location=HoChiMinh,VN
