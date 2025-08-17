@@ -1,78 +1,90 @@
 package com.example.weather_forecast_server.service;
 
-import com.example.weather_forecast_server.model.WeatherData;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.example.weather_forecast_server.model.WeatherAlertResponse;
 import com.example.weather_forecast_server.model.WeatherRawResponse;
-import org.springframework.stereotype.Service;
 
+import java.lang.reflect.Method;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
-@Service
 public class WeatherAnalyzer {
 
-    @Autowired WeatherFetcherService fetcherService;
+    public List<WeatherAlertResponse> analyze(WeatherRawResponse raw) {
+        List<WeatherAlertResponse> alerts = new ArrayList<>();
 
-    public String analyzeHourlyWeather(WeatherData weatherData){
-        Optional<WeatherRawResponse> weatherOpt = fetcherService.fetchWeather();
+        try {
+            List<?> days = raw.getDays();
+            if (days != null && !days.isEmpty()) {
+                Object today = days.get(0); // WeatherDay object
 
-        if (weatherOpt.isEmpty()){
-            return"Khong lay duoc du lieu";
-        }
+                String datetime = (String) getValue(today, "getDatetime");
+                Double temp = (Double) getValue(today, "getTemp");
+                Double tempMax = (Double) getValue(today, "getTempmax");
+                Double tempMin = (Double) getValue(today, "getTempmin");
+                Double humidity = (Double) getValue(today, "getHumidity");
+                Double pressure = (Double) getValue(today, "getPressure");
+                Double windspeed = (Double) getValue(today, "getWindspeed");
+                String sunrise = (String) getValue(today, "getSunrise");
+                String sunset = (String) getValue(today, "getSunset");
+                Integer uvIndex = (Integer) getValue(today, "getUvindex");
 
-        WeatherRawResponse weatherRawResponse = weatherOpt.get();
+                LocalDate date = LocalDate.parse(datetime, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+                long now = System.currentTimeMillis();
 
-        List<String> alerts = new ArrayList<>();
-        weatherData.setAlerts(alerts);
-
-        //Du lieu ngay
-        if (WeatherRawResponse.getDays() == null || WeatherRawResponse.getDays().isEmpty()){
-            alerts.add("Khong lay duoc du lieu ngay.");
-            weatherData.setHasAlert(true);
-            return String.join("/n ", alerts);
-        }
-
-
-        //Du lieu gio
-        List<WeatherRawResponse> hours = WeatherRawResponse.getDays().get(0).getHours();
-        if (hours == null || hours.isEmpty()){
-            alerts.add("Khong lay duoc du lieu gio.");
-            weatherData.setHasAlert(true);
-            return String.join("/n ", alerts);
-        }
-
-        StringBuilder results = new StringBuilder("Weather Info");
-
-        for (WeatherRawResponse h : hours){
-            String description = String.format("", h.getDatetime(), h.getTemp(), h.getHumid(), h.getPrecip(), h.getWind());
-
-            //Phan tich canh bao
-            if (h.getTemp > 37.5){
-                alerts.add(h.getDatetime() + ": Nhiet do cao.");
-            } else if (h.getTemp < 26.5){
-                alerts.add(h.getDatetime() + ": Nhiet do thap.");
+                // RULE cảnh báo
+                if (windspeed != null && windspeed > 50) {
+                    alerts.add(new WeatherAlertResponse(
+                            "Wind",
+                            "Gió mạnh",
+                            "Gió mạnh (>50km/h) - hạn chế ra ngoài.",
+                            "Severe",
+                            now
+                    ));
+                }
+                if (uvIndex != null && uvIndex > 7) {
+                    alerts.add(new WeatherAlertResponse(
+                            "UV",
+                            "Chỉ số UV cao",
+                            "Chỉ số UV cao (>7) - cần chống nắng.",
+                            "High",
+                            now
+                    ));
+                }
+                if (tempMax != null && tempMax > 38) {
+                    alerts.add(new WeatherAlertResponse(
+                            "Heat",
+                            "Nắng nóng",
+                            "Nhiệt độ cao (>38°C) - nguy cơ sốc nhiệt.",
+                            "Extreme",
+                            now
+                    ));
+                }
+                if (tempMin != null && tempMin < 5) {
+                    alerts.add(new WeatherAlertResponse(
+                            "Cold",
+                            "Trời lạnh",
+                            "Nhiệt độ thấp (<5°C) - nguy cơ hạ thân nhiệt.",
+                            "Moderate",
+                            now
+                    ));
+                }
             }
-
-            if (h.getHumid > 75){
-                alerts.add(h.getHumid() + ": Do am cao.");
-            }
-
-            if (h.getPrecip > 0){
-                alerts.add(h.getPrecip() + ": Troi sap mua.");
-            }
-
-            if (h.getWind > 40){
-                alrerts.add(h.getWind() + ": Troi hom nay gio lon.");
-            }
-            results.append(description).append("\n");
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
-        weatherData.setHasAlert(!alerts.isEmpty());
+        return alerts;
+    }
 
-        if  (weatherData.getHasAlert()){
-            results.append("").append(String.join("\n", alerts));
+    // Hàm gọi getter qua Reflection
+    private Object getValue(Object obj, String methodName) {
+        try {
+            Method method = obj.getClass().getMethod(methodName);
+            return method.invoke(obj);
+        } catch (Exception e) {
+            return null;
         }
-        return results.toString();
     }
 }
