@@ -11,7 +11,6 @@ public class WeatherRawResponse {
     private String timezone;
     private String address;
     private List<WeatherDay> days;
-
 }
 
 @Data

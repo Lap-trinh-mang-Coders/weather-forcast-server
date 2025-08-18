@@ -4,7 +4,7 @@ import com.example.weather_forecast_server.model.WeatherAlertResponse;
 import com.example.weather_forecast_server.model.WeatherRawResponse;
 
 import java.lang.reflect.Method;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,56 +19,61 @@ public class WeatherAnalyzer {
             if (days != null && !days.isEmpty()) {
                 Object today = days.get(0); // WeatherDay object
 
-                String datetime = (String) getValue(today, "getDatetime");
-                Double temp = (Double) getValue(today, "getTemp");
-                Double tempMax = (Double) getValue(today, "getTempmax");
-                Double tempMin = (Double) getValue(today, "getTempmin");
-                Double humidity = (Double) getValue(today, "getHumidity");
-                Double pressure = (Double) getValue(today, "getPressure");
-                Double windspeed = (Double) getValue(today, "getWindspeed");
-                String sunrise = (String) getValue(today, "getSunrise");
-                String sunset = (String) getValue(today, "getSunset");
-                Integer uvIndex = (Integer) getValue(today, "getUvindex");
+                // Lấy list giờ từ WeatherDay
+                List<?> hours = (List<?>) getValue(today, "getHours");
 
-                LocalDate date = LocalDate.parse(datetime, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-                long now = System.currentTimeMillis();
+                if (hours != null && !hours.isEmpty()) {
+                    for (Object hour : hours) {
+                        String datetime = (String) getValue(hour, "getDatetime"); // "2025-08-17T14:00:00"
+                        Double temp = (Double) getValue(hour, "getTemp");
+                        Double tempMax = (Double) getValue(hour, "getTempmax");
+                        Double tempMin = (Double) getValue(hour, "getTempmin");
+                        Double humidity = (Double) getValue(hour, "getHumidity");
+                        Double pressure = (Double) getValue(hour, "getPressure");
+                        Double windspeed = (Double) getValue(hour, "getWindspeed");
+                        Integer uvIndex = (Integer) getValue(hour, "getUvindex");
 
-                // RULE cảnh báo
-                if (windspeed != null && windspeed > 50) {
-                    alerts.add(new WeatherAlertResponse(
-                            "Wind",
-                            "Gió mạnh",
-                            "Gió mạnh (>50km/h) - hạn chế ra ngoài.",
-                            "Severe",
-                            now
-                    ));
-                }
-                if (uvIndex != null && uvIndex > 7) {
-                    alerts.add(new WeatherAlertResponse(
-                            "UV",
-                            "Chỉ số UV cao",
-                            "Chỉ số UV cao (>7) - cần chống nắng.",
-                            "High",
-                            now
-                    ));
-                }
-                if (tempMax != null && tempMax > 38) {
-                    alerts.add(new WeatherAlertResponse(
-                            "Heat",
-                            "Nắng nóng",
-                            "Nhiệt độ cao (>38°C) - nguy cơ sốc nhiệt.",
-                            "Extreme",
-                            now
-                    ));
-                }
-                if (tempMin != null && tempMin < 5) {
-                    alerts.add(new WeatherAlertResponse(
-                            "Cold",
-                            "Trời lạnh",
-                            "Nhiệt độ thấp (<5°C) - nguy cơ hạ thân nhiệt.",
-                            "Moderate",
-                            now
-                    ));
+                        LocalDateTime dateTime = LocalDateTime.parse(datetime, DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss"));
+                        long timestamp = System.currentTimeMillis();
+
+                        // RULE cảnh báo theo giờ
+                        if (windspeed != null && windspeed > 50) {
+                            alerts.add(new WeatherAlertResponse(
+                                    "Wind",
+                                    "Gió mạnh",
+                                    "Gió mạnh (>50km/h) lúc " + dateTime.getHour() + "h - hạn chế ra ngoài.",
+                                    "Severe",
+                                    timestamp
+                            ));
+                        }
+                        if (uvIndex != null && uvIndex > 7) {
+                            alerts.add(new WeatherAlertResponse(
+                                    "UV",
+                                    "Chỉ số UV cao",
+                                    "Chỉ số UV cao (>7) lúc " + dateTime.getHour() + "h - cần chống nắng.",
+                                    "High",
+                                    timestamp
+                            ));
+                        }
+                        if (tempMax != null && tempMax > 38) {
+                            alerts.add(new WeatherAlertResponse(
+                                    "Heat",
+                                    "Nắng nóng",
+                                    "Nhiệt độ cao (>38°C) lúc " + dateTime.getHour() + "h - nguy cơ sốc nhiệt.",
+                                    "Extreme",
+                                    timestamp
+                            ));
+                        }
+                        if (tempMin != null && tempMin < 5) {
+                            alerts.add(new WeatherAlertResponse(
+                                    "Cold",
+                                    "Trời lạnh",
+                                    "Nhiệt độ thấp (<5°C) lúc " + dateTime.getHour() + "h - nguy cơ hạ thân nhiệt.",
+                                    "Moderate",
+                                    timestamp
+                            ));
+                        }
+                    }
                 }
             }
         } catch (Exception e) {
