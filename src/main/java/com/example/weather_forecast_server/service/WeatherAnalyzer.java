@@ -17,14 +17,14 @@ public class WeatherAnalyzer {
         try {
             List<?> days = raw.getDays();
             if (days != null && !days.isEmpty()) {
-                Object today = days.get(0); // WeatherDay object
+                Object today = days.get(0); 
 
                 // Lấy list giờ từ WeatherDay
                 List<?> hours = (List<?>) getValue(today, "getHours");
 
                 if (hours != null && !hours.isEmpty()) {
                     for (Object hour : hours) {
-                        String datetime = (String) getValue(hour, "getDatetime"); // "2025-08-17T14:00:00"
+                        String datetime = (String) getValue(hour, "getDatetime");
                         Double temp = (Double) getValue(hour, "getTemp");
                         Double tempMax = (Double) getValue(hour, "getTempmax");
                         Double tempMin = (Double) getValue(hour, "getTempmin");
@@ -32,6 +32,7 @@ public class WeatherAnalyzer {
                         Double pressure = (Double) getValue(hour, "getPressure");
                         Double windspeed = (Double) getValue(hour, "getWindspeed");
                         Integer uvIndex = (Integer) getValue(hour, "getUvindex");
+                        String icon = (String) getValue(hour, "getIcon");
 
                         LocalDateTime dateTime = LocalDateTime.parse(datetime, DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss"));
                         long timestamp = System.currentTimeMillis();
@@ -69,6 +70,15 @@ public class WeatherAnalyzer {
                                     "Cold",
                                     "Trời lạnh",
                                     "Nhiệt độ thấp (<5°C) lúc " + dateTime.getHour() + "h - nguy cơ hạ thân nhiệt.",
+                                    "Moderate",
+                                    timestamp
+                            ));
+                        }
+                        if (icon != null && icon.toLowerCase().contains("rain")) {
+                            alerts.add(new WeatherAlertResponse(
+                                    "Rain",
+                                    "Có mưa",
+                                    "Trời mưa lúc " + dateTime.getHour() + "h - nên mang theo áo mưa.",
                                     "Moderate",
                                     timestamp
                             ));
