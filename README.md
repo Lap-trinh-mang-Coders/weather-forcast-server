@@ -1,6 +1,7 @@
 # 🌤️ Weather Alert WebSocket Server
 
 ## 🧠 Mô tả dự án
+Truy cập phần trình bày báo cáo: https://www.youtube.com/watch?v=6GyEI6j1rEI
 
 Dự án Java Spring Boot này là một WebSocket server **lấy dữ liệu thời tiết từ Visual Crossing API**, phân tích thời tiết xấu theo quy tắc riêng, và **gửi cảnh báo thời tiết tới các client Kotlin app** qua WebSocket.
 
